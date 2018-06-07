@@ -337,7 +337,7 @@ mqtt_msg_connect(mqtt_connection_t* connection, mqtt_connect_info_t* info) {
     variable_header->flags |= MQTT_CONNECT_FLAG_PASSWORD;
   }
 
-  return fini_message(connection, MQTT_MSG_TYPE_CONNECT, 0, 0, 0);
+  return fini_message(connection, MQTT_MSG_TYPE_CONNECT, 0, 0, info->will_retain);
 }
 
 mqtt_message_t* ICACHE_FLASH_ATTR
