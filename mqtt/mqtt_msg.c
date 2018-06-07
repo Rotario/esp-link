@@ -276,6 +276,8 @@ mqtt_message_t* ICACHE_FLASH_ATTR
 mqtt_msg_connect(mqtt_connection_t* connection, mqtt_connect_info_t* info) {
   struct mqtt_connect_variable_header* variable_header;
 
+  uint8_t mRetain = 0;
+
   init_message(connection);
 
   if (connection->message.length + sizeof(*variable_header) > connection->buffer_length)
@@ -318,8 +320,10 @@ mqtt_msg_connect(mqtt_connection_t* connection, mqtt_connect_info_t* info) {
       return fail_message(connection);
 
     variable_header->flags |= MQTT_CONNECT_FLAG_WILL;
-    if (info->will_retain)
+    if (info->will_retain){
       variable_header->flags |= MQTT_CONNECT_FLAG_WILL_RETAIN;
+      mRetain = 1;
+      }
     variable_header->flags |= (info->will_qos & 3) << 3;
   }
 
@@ -337,7 +341,7 @@ mqtt_msg_connect(mqtt_connection_t* connection, mqtt_connect_info_t* info) {
     variable_header->flags |= MQTT_CONNECT_FLAG_PASSWORD;
   }
 
-  return fini_message(connection, MQTT_MSG_TYPE_CONNECT, 0, 0, info->will_retain);
+  return fini_message(connection, MQTT_MSG_TYPE_CONNECT, 0, 0, mRetain);
 }
 
 mqtt_message_t* ICACHE_FLASH_ATTR
