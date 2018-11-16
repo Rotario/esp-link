@@ -50,6 +50,7 @@
 extern void dumpMem(void *buf, int len);
 
 // HACK
+/*
 sint8 espconn_secure_connect(struct espconn *espconn) {
   return espconn_connect(espconn);
 }
@@ -58,7 +59,7 @@ sint8 espconn_secure_disconnect(struct espconn *espconn) {
 }
 sint8 espconn_secure_sent(struct espconn *espconn, uint8 *psent, uint16 length) {
   return espconn_sent(espconn, psent, length);
-}
+}*/
 
 // max message size supported for receive
 #define MQTT_MAX_RCV_MESSAGE 2048
@@ -460,7 +461,7 @@ mqtt_send_message(MQTT_Client* client) {
 
   // send the message out
   if (client->security)
-    espconn_secure_sent(client->pCon, buf->data, buf->filled);
+    espconn_secure_send(client->pCon, buf->data, buf->filled);
   else
     espconn_sent(client->pCon, buf->data, buf->filled);
   client->sending = true;
@@ -636,7 +637,7 @@ MQTT_Init(MQTT_Client* client, char* host, uint32 port, uint8_t security, uint8_
   os_strcpy(client->host, host);
 
   client->port = port;
-  client->security = !!security;
+  client->security = 1;//!!security;
 
   // timeouts with sanity checks
   client->sendTimeout = sendTimeout == 0 ? 1 : sendTimeout;
@@ -712,6 +713,7 @@ MQTT_Connect(MQTT_Client* client) {
         (void*)&client->pCon->proto.tcp->remote_ip)) {
     uint8_t err;
     if (client->security)
+      espconn_secure_ca_enable(1, 0x7B);
       err = espconn_secure_connect(client->pCon);
     else
       err = espconn_connect(client->pCon);
@@ -737,6 +739,7 @@ mqtt_doAbort(MQTT_Client* client) {
   os_printf("MQTT: Disconnecting from %s:%d (%p)\n", client->host, client->port, client->pCon);
   client->pCon->reverse = NULL; // ensure we jettison this pCon...
   if (client->security)
+	espconn_secure_ca_disable(1);
     espconn_secure_disconnect(client->pCon);
   else
     espconn_disconnect(client->pCon);
