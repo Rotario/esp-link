@@ -1,0 +1,28 @@
+Upload SerialPassthrough program, Check ESP works correctly by setting FIRMWARE_UPLOADING to 1 first.
+Open the serial monitor, type AT then enter, OK should be returned. This means the ESP works and is connected correctly.
+
+change FIRMWARE_UPLOADING to 0 in SerialPassThrough.ino and re upload the program.
+
+open powershell
+cd to esptool folder:
+cd C:\Users\rowane\Documents\Transporter\Technical Department\Rowan Easter-Robinson\Projects\Industry 4 Process Monitoring\PCB Design Rev 5\ESP Data\EspTool+Firmware\esp-link-v3.0.14-g963ffbb
+
+run esptool with correct options (This is for the 4Mb module ESP-07 + 07s) (select correct COM port too!!)
+
+python esptool.py --port COM3 --baud 115200 write_flash -fs 4MB -ff 80m 0x00000 boot_v1.6.bin 0x1000 user1.bin 0x7C000 esp_init_data_default.bin 0x7E000 blank.bin
+
+Should exit cleanly without error.
+Upload MQTT_Rev7_UPTIME.ino
+
+Connect to AI_THINKER_XXXX wifi station,
+switch to STA+AP Mode and scan for wifi networks. While scanning head to uC Console tab, change Serial Baud to 460800
+also in Home Tab, change reset pin to GPIO4.
+
+Once scanning finished connect to wifi AP of your choice, enter password if required. Wait for connection,
+ONCE CONNECTED NOTE DOWN THE IP ADDRESS IN "Wifi Address" THIS IS REQUIRED as the AI THINKER wifi station will drop out 15 seconds after
+a successful connection.
+
+192.168.7.182 for example.
+
+Go to REST/MQTT and tick the enable SLIP on SERIAL port.
+Enable MQTT and enter server settings as required.
