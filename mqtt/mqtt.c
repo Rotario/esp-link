@@ -712,11 +712,12 @@ MQTT_Connect(MQTT_Client* client) {
   if (UTILS_StrToIP((const char *)client->host,
         (void*)&client->pCon->proto.tcp->remote_ip)) {
     uint8_t err;
-    if (client->security)
+    if (client->security) {
       espconn_secure_ca_enable(1, 0x7B);
       err = espconn_secure_connect(client->pCon);
-    else
+	} else {
       err = espconn_connect(client->pCon);
+	}
     if (err != 0) {
       os_printf("MQTT ERROR: Failed to connect\n");
       os_free(client->pCon->proto.tcp);
@@ -738,11 +739,12 @@ static void ICACHE_FLASH_ATTR
 mqtt_doAbort(MQTT_Client* client) {
   os_printf("MQTT: Disconnecting from %s:%d (%p)\n", client->host, client->port, client->pCon);
   client->pCon->reverse = NULL; // ensure we jettison this pCon...
-  if (client->security)
+  if (client->security) {
 	espconn_secure_ca_disable(1);
     espconn_secure_disconnect(client->pCon);
-  else
+  } else {
     espconn_disconnect(client->pCon);
+  }
 
   if (client->disconnectedCb) client->disconnectedCb(client);
   if (client->cmdDisconnectedCb) client->cmdDisconnectedCb(client);
